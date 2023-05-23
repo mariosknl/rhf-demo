@@ -1,4 +1,4 @@
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, FieldErrors } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 import { useEffect } from "react";
 
@@ -27,6 +27,7 @@ const YouTubeForm = () => {
 		watch,
 		getValues,
 		setValue,
+		reset,
 	} = useForm<FormValues>({
 		// defaultValues: async () => {
 		// 	const response = await fetch(
@@ -53,7 +54,19 @@ const YouTubeForm = () => {
 			dob: new Date(),
 		},
 	});
-	const { errors, touchedFields, dirtyFields, isDirty } = formState;
+	const {
+		errors,
+		touchedFields,
+		dirtyFields,
+		isDirty,
+		isValid,
+		isSubmitting,
+		isSubmitted,
+		isSubmitSuccessful,
+		submitCount,
+	} = formState;
+
+	console.log({ isSubmitting, isSubmitted, isSubmitSuccessful, submitCount });
 
 	const { fields, append, remove } = useFieldArray({
 		name: "phNumbers",
@@ -63,6 +76,16 @@ const YouTubeForm = () => {
 	const onSubmit = (data: FormValues) => {
 		console.log("Form Submitted", data);
 	};
+
+	const onError = (errors: FieldErrors<FormValues>) => {
+		console.log("Form errors", errors);
+	};
+
+	// useEffect(() => {
+	// 	if (isSubmitSuccessful) {
+	// 		reset();
+	// 	}
+	// }, [isSubmitSuccessful, reset]);
 
 	useEffect(() => {
 		const subscription = watch((value) => {
@@ -90,7 +113,7 @@ const YouTubeForm = () => {
 		<div>
 			<h1>Youtube Form</h1>
 			<h2>Watched Value: {watchUsername}</h2>
-			<form onSubmit={handleSubmit(onSubmit)} noValidate>
+			<form onSubmit={handleSubmit(onSubmit, onError)} noValidate>
 				<div className="form-control">
 					<label htmlFor="username">Username</label>
 					<input
@@ -262,7 +285,10 @@ const YouTubeForm = () => {
 					<p className="error">{errors.dob?.message}</p>
 				</div>
 
-				<button>Submit</button>
+				<button disabled={!isDirty || !isValid || isSubmitting}>Submit</button>
+				<button type="button" onClick={() => reset()}>
+					Reset
+				</button>
 				<button type="button" onClick={handleGetValues}>
 					Get values
 				</button>
