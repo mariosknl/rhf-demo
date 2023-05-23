@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
 
 type FormValues = {
@@ -10,6 +10,9 @@ type FormValues = {
 		facebook: string;
 	};
 	phoneNumbers: string[];
+	phNumbers: {
+		number: string;
+	}[];
 };
 
 const YouTubeForm = () => {
@@ -34,9 +37,15 @@ const YouTubeForm = () => {
 				facebook: "",
 			},
 			phoneNumbers: ["", ""],
+			phNumbers: [{ number: "" }],
 		},
 	});
 	const { errors } = formState;
+
+	const { fields, append, remove } = useFieldArray({
+		name: "phNumbers",
+		control,
+	});
 
 	const onSubmit = (data: FormValues) => {
 		console.log("Form Submitted", data);
@@ -106,7 +115,16 @@ const YouTubeForm = () => {
 
 				<div className="form-control">
 					<label htmlFor="twitter">Twitter</label>
-					<input type="text" id="twitter" {...register("social.twitter", {})} />
+					<input
+						type="text"
+						id="twitter"
+						{...register("social.twitter", {
+							required: {
+								value: true,
+								message: "Twitter is required",
+							},
+						})}
+					/>
 				</div>
 
 				<div className="form-control">
@@ -114,7 +132,12 @@ const YouTubeForm = () => {
 					<input
 						type="text"
 						id="facebook"
-						{...register("social.facebook", {})}
+						{...register("social.facebook", {
+							required: {
+								value: true,
+								message: "Facebook is required",
+							},
+						})}
 					/>
 				</div>
 
@@ -123,7 +146,12 @@ const YouTubeForm = () => {
 					<input
 						type="text"
 						id="primary-phone"
-						{...register("phoneNumbers.0", {})}
+						{...register("phoneNumbers.0", {
+							required: {
+								value: true,
+								message: "Primary phone number is required",
+							},
+						})}
 					/>
 				</div>
 				<div className="form-control">
@@ -131,8 +159,37 @@ const YouTubeForm = () => {
 					<input
 						type="text"
 						id="secondary-phone"
-						{...register("phoneNumbers.1", {})}
+						{...register("phoneNumbers.1", {
+							required: {
+								value: true,
+								message: "Secondary phone number is required",
+							},
+						})}
 					/>
+				</div>
+
+				<div>
+					<label>List of phone numbers</label>
+					<div>
+						{fields.map((field, index) => {
+							return (
+								<div className="form-contro" key={field.id}>
+									<input
+										type="text"
+										{...register(`phNumbers.${index}.number` as const)}
+									/>
+									{index > 0 && (
+										<button type="button" onClick={() => remove(index)}>
+											Remove
+										</button>
+									)}
+								</div>
+							);
+						})}
+						<button type="button" onClick={() => append({ number: "" })}>
+							Add phone number
+						</button>
+					</div>
 				</div>
 
 				<button>Submit</button>
