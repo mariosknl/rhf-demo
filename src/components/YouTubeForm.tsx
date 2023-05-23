@@ -1,5 +1,6 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { DevTool } from "@hookform/devtools";
+import { useEffect } from "react";
 
 type FormValues = {
 	username: string;
@@ -18,32 +19,33 @@ type FormValues = {
 };
 
 const YouTubeForm = () => {
-	const { register, control, handleSubmit, formState } = useForm<FormValues>({
-		// defaultValues: async () => {
-		// 	const response = await fetch(
-		// 		"https://jsonplaceholder.typicode.com/users/1"
-		// 	);
-		// 	const data = await response.json();
-		// 	return {
-		// 		username: "Batman",
-		// 		email: data.email,
-		// 		channel: "",
-		// 	};
-		// },
-		defaultValues: {
-			username: "Batman",
-			email: "",
-			channel: "",
-			social: {
-				twitter: "",
-				facebook: "",
+	const { register, control, handleSubmit, formState, watch } =
+		useForm<FormValues>({
+			// defaultValues: async () => {
+			// 	const response = await fetch(
+			// 		"https://jsonplaceholder.typicode.com/users/1"
+			// 	);
+			// 	const data = await response.json();
+			// 	return {
+			// 		username: "Batman",
+			// 		email: data.email,
+			// 		channel: "",
+			// 	};
+			// },
+			defaultValues: {
+				username: "Batman",
+				email: "",
+				channel: "",
+				social: {
+					twitter: "",
+					facebook: "",
+				},
+				phoneNumbers: ["", ""],
+				phNumbers: [{ number: "" }],
+				age: 0,
+				dob: new Date(),
 			},
-			phoneNumbers: ["", ""],
-			phNumbers: [{ number: "" }],
-			age: 0,
-			dob: new Date(),
-		},
-	});
+		});
 	const { errors } = formState;
 
 	const { fields, append, remove } = useFieldArray({
@@ -55,8 +57,20 @@ const YouTubeForm = () => {
 		console.log("Form Submitted", data);
 	};
 
+	useEffect(() => {
+		const subscription = watch((value) => {
+			console.log(value);
+		});
+
+		return subscription.unsubscribe();
+	}, [watch]);
+
+	const watchUsername = watch(["username", "email"]);
+
 	return (
 		<div>
+			<h1>Youtube Form</h1>
+			<h2>Watched Value: {watchUsername}</h2>
 			<form onSubmit={handleSubmit(onSubmit)} noValidate>
 				<div className="form-control">
 					<label htmlFor="username">Username</label>
