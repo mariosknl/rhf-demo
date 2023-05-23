@@ -19,34 +19,41 @@ type FormValues = {
 };
 
 const YouTubeForm = () => {
-	const { register, control, handleSubmit, formState, watch } =
-		useForm<FormValues>({
-			// defaultValues: async () => {
-			// 	const response = await fetch(
-			// 		"https://jsonplaceholder.typicode.com/users/1"
-			// 	);
-			// 	const data = await response.json();
-			// 	return {
-			// 		username: "Batman",
-			// 		email: data.email,
-			// 		channel: "",
-			// 	};
-			// },
-			defaultValues: {
-				username: "Batman",
-				email: "",
-				channel: "",
-				social: {
-					twitter: "",
-					facebook: "",
-				},
-				phoneNumbers: ["", ""],
-				phNumbers: [{ number: "" }],
-				age: 0,
-				dob: new Date(),
+	const {
+		register,
+		control,
+		handleSubmit,
+		formState,
+		watch,
+		getValues,
+		setValue,
+	} = useForm<FormValues>({
+		// defaultValues: async () => {
+		// 	const response = await fetch(
+		// 		"https://jsonplaceholder.typicode.com/users/1"
+		// 	);
+		// 	const data = await response.json();
+		// 	return {
+		// 		username: "Batman",
+		// 		email: data.email,
+		// 		channel: "",
+		// 	};
+		// },
+		defaultValues: {
+			username: "Batman",
+			email: "",
+			channel: "",
+			social: {
+				twitter: "",
+				facebook: "",
 			},
-		});
-	const { errors } = formState;
+			phoneNumbers: ["", ""],
+			phNumbers: [{ number: "" }],
+			age: 0,
+			dob: new Date(),
+		},
+	});
+	const { errors, touchedFields, dirtyFields, isDirty } = formState;
 
 	const { fields, append, remove } = useFieldArray({
 		name: "phNumbers",
@@ -64,6 +71,18 @@ const YouTubeForm = () => {
 
 		return subscription.unsubscribe();
 	}, [watch]);
+
+	const handleGetValues = () => {
+		console.log(getValues(["username", "email"]));
+	};
+
+	const handleSetValue = () => {
+		setValue("username", "Bruce Wayne", {
+			shouldValidate: true,
+			shouldDirty: true,
+			shouldTouch: true,
+		});
+	};
 
 	const watchUsername = watch(["username", "email"]);
 
@@ -141,6 +160,7 @@ const YouTubeForm = () => {
 								value: true,
 								message: "Twitter is required",
 							},
+							disabled: watch("channel") === "",
 						})}
 					/>
 				</div>
@@ -243,6 +263,12 @@ const YouTubeForm = () => {
 				</div>
 
 				<button>Submit</button>
+				<button type="button" onClick={handleGetValues}>
+					Get values
+				</button>
+				<button type="button" onClick={handleSetValue}>
+					Set value
+				</button>
 			</form>
 			<DevTool control={control} />
 		</div>
